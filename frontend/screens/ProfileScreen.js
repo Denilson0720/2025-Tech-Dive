@@ -26,7 +26,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { dummyPins } from '../data/dummyData';
 // get current user and then also pins for that user
-import { authAPI,pinsAPI } from '../services/api';
+import { authAPI,boardsAPI,pinsAPI } from '../services/api';
 
 
 const { width } = Dimensions.get('window');
@@ -39,46 +39,50 @@ const ProfileScreen = () => {
   const route = useRoute();
   const [user, setUser] = useState(null);
 
-  const [testingUser,setTestUser] = useState(null);
+  // const [testingUser,setTestUser] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
   const [selectedView, setSelectedView] = useState('pins'); // 'pins' or 'boards'
-  const [userPins, setUserPins] = useState([]);
 
-  const [userTestPins,setTestPins] = useState([]);
+  const [userPins, setUserPins] = useState([]);
+  // const [userTestPins,setTestPins] = useState([]);
 
   const [userBoards, setUserBoards] = useState([]);
+  // const [testUserBoards,setTestBoards] = useState([]);
 
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
       // For now, using dummy data
-      const dummyUser = {
-        _id: 'testuser123',
-        username: 'John Doe',
-        email: 'john@example.com',
-        bio: 'Pinterest enthusiast | Digital Creator | Love sharing beautiful things',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-        followers: Array(128).fill('dummy_follower'),
-        following: Array(97).fill('dummy_following'),
-        pins: dummyPins.slice(0, 15),
-        boards: [
-          { _id: 'board1', name: 'Travel Inspiration', pins: Array(24).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-          { _id: 'board2', name: 'Food & Recipes', pins: Array(16).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-          { _id: 'board3', name: 'Interior Design', pins: Array(32).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-        ],
-      };
+      // const dummyUser = {
+      //   _id: 'testuser123',
+      //   username: 'John Doe',
+      //   email: 'john@example.com',
+      //   bio: 'Pinterest enthusiast | Digital Creator | Love sharing beautiful things',
+      //   avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+      //   followers: Array(128).fill('dummy_follower'),
+      //   following: Array(97).fill('dummy_following'),
+      //   pins: dummyPins.slice(0, 15),
+      //   boards: [
+      //     { _id: 'board1', name: 'Travel Inspiration', pins: Array(24).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+      //     { _id: 'board2', name: 'Food & Recipes', pins: Array(16).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+      //     { _id: 'board3', name: 'Interior Design', pins: Array(32).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+      //   ],
+      // };
 
-      setUser(dummyUser);
-      setUserPins(dummyUser.pins);
-      setUserBoards(dummyUser.boards);
-      const currUser = await authAPI.getCurrentUser()
-      console.log('message from me: ',currUser)
-      setTestUser(currUser)
-      // setTestPins(testingUser.)
+      // setUser(dummyUser);
+      // setUserPins(dummyUser.pins);
+      // setUserBoards(dummyUser.boards);
+      const currUser = await authAPI.getCurrentUser();
+      const userPins = await pinsAPI.getUserPinsByUserId(currUser._id);
+      const userBoards = await boardsAPI.getUserBoardsByUserId(currUser._id);
+      setUser(currUser);
+      setUserPins(userPins);
+      setUserBoards(userBoards);
+
 
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -236,24 +240,26 @@ const ProfileScreen = () => {
             </Button>
             {/* DEBUG BUTTONS */}
             <Button
-              onPress = {()=>console.log(testingUser)}
+              onPress = {()=>console.log(user)}
               style={[styles.actionButton, { backgroundColor: '#9C27B0' }]}
               textColor="#FFFFFF"
             >
-              user data button
+              user data
             </Button>
             <Button
             
-              onPress = {()=>pinsAPI.getUserPinsByUserId('6809099e6fa8e9e7869f7509')}
+              onPress = {()=>console.log(userBoards)}
               // onPress = {()=>pinsAPI.getUserPinsByUserId(testingUser._id)}
               style={[styles.actionButton, { backgroundColor: '#9C27B0' }]}
               textColor="#FFFFFF"
             >
-              user pins
+              user boards
             </Button>
-            <span>
-              {testingUser._id}
-            </span>
+            <Button onPress = {()=>console.log(userPins)}
+                style={[styles.actionButton, { backgroundColor: '#9C27B0' }]}
+                textColor="#FFFFFF">
+                user pins
+            </Button>
 
           </View>
         </Surface>

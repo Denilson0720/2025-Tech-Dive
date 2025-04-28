@@ -168,19 +168,19 @@ export const pinsAPI = {
     return handleResponse(response);
   },
     // userId will be passed in and extracted from userData._id
-    getUserPinsByUserId: async(userId)=>{
-      const token = await getAuthToken();
-      if(!token){
-        throw new Error('No authentication token found');
+  getUserPinsByUserId: async(userId)=>{
+    const token = await getAuthToken();
+    if(!token){
+      throw new Error('No authentication token found');
+    }
+    const response = await fetch(`${API_URL}/pins/user/${userId}`,{
+      headers:{
+        'x-auth-token': token,
+        'Accept': 'application/json'
       }
-      const response = await fetch(`${API_URL}/pins/users/${userId}`,{
-          headers:{
-            'x-auth-token': token,
-            'Accept': 'application/json'
-          }
-      });
-      return handleResponse(response);
-    },
+    });
+    return handleResponse(response);
+  },
 
   getPinById: async (pinId) => {
     const token = await getAuthToken();
@@ -281,6 +281,20 @@ export const boardsAPI = {
       },
     });
     return handleResponse(response);
+  },
+  getUserBoardsByUserId: async (userId) => {
+    const token = await getAuthToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const response  = await fetch(`${API_URL}/boards/user/${userId}`,{
+      headers: {
+        'x-auth-token': token,
+        'Accept': 'application/json'
+      },
+    });
+    return handleResponse(response);
+
   },
 
   createBoard: async (boardData) => {

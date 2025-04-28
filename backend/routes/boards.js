@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const Board = require('../models/Board');
@@ -24,6 +25,21 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('Get board error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get boards by userId
+router.get('/user/:userId',async (req,res)=>{
+  try{
+    const id = new mongoose.Types.ObjectId(req.params.userId);
+    const boards = await Board.find({user:id})
+    if (!boards) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+    res.json(boards);
+  }catch(error){
+    console.error('Get user boards error: ', error);
+    res.status(500).json({message:'Server error'});
   }
 });
 

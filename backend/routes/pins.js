@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const Pin = require('../models/Pin');
@@ -27,7 +28,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 // GET pin by userId
-router.get('/users/:userId',async(req,res)=>{
+router.get('/user/:userId',async(req,res)=>{
   try{
     // const id = ObjectId(req.params.userId)
     const id = new mongoose.Types.ObjectId(req.params.userId);
