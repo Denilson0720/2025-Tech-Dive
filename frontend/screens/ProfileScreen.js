@@ -25,6 +25,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { dummyPins } from '../data/dummyData';
+// get current user and then also pins for that user
+import { authAPI,pinsAPI } from '../services/api';
+
 
 const { width } = Dimensions.get('window');
 const numColumns = 3;
@@ -35,12 +38,18 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [user, setUser] = useState(null);
+
+  const [testingUser,setTestUser] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
   const [selectedView, setSelectedView] = useState('pins'); // 'pins' or 'boards'
   const [userPins, setUserPins] = useState([]);
+
+  const [userTestPins,setTestPins] = useState([]);
+
   const [userBoards, setUserBoards] = useState([]);
 
   const fetchUserProfile = async () => {
@@ -66,6 +75,11 @@ const ProfileScreen = () => {
       setUser(dummyUser);
       setUserPins(dummyUser.pins);
       setUserBoards(dummyUser.boards);
+      const currUser = await authAPI.getCurrentUser()
+      console.log('message from me: ',currUser)
+      setTestUser(currUser)
+      // setTestPins(testingUser.)
+
     } catch (error) {
       console.error('Error fetching user profile:', error);
     } finally {
@@ -220,6 +234,27 @@ const ProfileScreen = () => {
             >
               Create Board
             </Button>
+            {/* DEBUG BUTTONS */}
+            <Button
+              onPress = {()=>console.log(testingUser)}
+              style={[styles.actionButton, { backgroundColor: '#9C27B0' }]}
+              textColor="#FFFFFF"
+            >
+              user data button
+            </Button>
+            <Button
+            
+              onPress = {()=>pinsAPI.getUserPinsByUserId('6809099e6fa8e9e7869f7509')}
+              // onPress = {()=>pinsAPI.getUserPinsByUserId(testingUser._id)}
+              style={[styles.actionButton, { backgroundColor: '#9C27B0' }]}
+              textColor="#FFFFFF"
+            >
+              user pins
+            </Button>
+            <span>
+              {testingUser._id}
+            </span>
+
           </View>
         </Surface>
 

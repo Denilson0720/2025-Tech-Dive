@@ -26,6 +26,23 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+// GET pin by userId
+router.get('/users/:userId',async(req,res)=>{
+  try{
+    // const id = ObjectId(req.params.userId)
+    const id = new mongoose.Types.ObjectId(req.params.userId);
+    const pins = await Pin.find({user:id});
+    if(!pins){
+      return res.status(404).json({message:'User pins not found'});
+    }
+    res.json(pins);
+  }catch(error){
+    console.error('Get user specific pins error: ',error);
+    res.status(500).json({message:'Server errorrr'});
+  }
+})
+// olivia id: '6809099e6fa8e9e7869f7509'
+
 
 // Create pin
 router.post('/', async (req, res) => {
