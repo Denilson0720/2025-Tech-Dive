@@ -24,7 +24,8 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { dummyPins } from '../data/dummyData';
+import { authAPI,boardsAPI,pinsAPI } from '../services/api';
+
 
 const { width } = Dimensions.get('window');
 const numColumns = 3;
@@ -46,26 +47,14 @@ const ProfileScreen = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      // For now, using dummy data
-      const dummyUser = {
-        _id: 'testuser123',
-        username: 'John Doe',
-        email: 'john@example.com',
-        bio: 'Pinterest enthusiast | Digital Creator | Love sharing beautiful things',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-        followers: Array(128).fill('dummy_follower'),
-        following: Array(97).fill('dummy_following'),
-        pins: dummyPins.slice(0, 15),
-        boards: [
-          { _id: 'board1', name: 'Travel Inspiration', pins: Array(24).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-          { _id: 'board2', name: 'Food & Recipes', pins: Array(16).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-          { _id: 'board3', name: 'Interior Design', pins: Array(32).fill('pin'), coverImage: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-        ],
-      };
+  
+      const currUser = await authAPI.getCurrentUser();
+      const userPins = await pinsAPI.getUserPinsByUserId(currUser._id);
+      const userBoards = await boardsAPI.getUserBoardsByUserId(currUser._id);
+      setUser(currUser);
+      setUserPins(userPins);
+      setUserBoards(userBoards);
 
-      setUser(dummyUser);
-      setUserPins(dummyUser.pins);
-      setUserBoards(dummyUser.boards);
     } catch (error) {
       console.error('Error fetching user profile:', error);
     } finally {
@@ -101,9 +90,11 @@ const ProfileScreen = () => {
       key={pin._id}
       style={styles.pinContainer}
       onPress={() => navigation.navigate('PinDetail', { pinId: pin._id })}
+
     >
       <Image
         source={{ uri: pin.imageUrl }}
+        // source= {{uri:'https://images.unsplash.com/photo-1449247709967-d4461a6a6103'}}<--mock url to visibly see pin element as imageUrls are wrong in DB
         style={styles.pinImage}
         resizeMode="cover"
       />
