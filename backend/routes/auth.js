@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -112,5 +113,20 @@ router.get('/me', async (req, res) => {
     res.status(401).json({ message: 'Token is not valid' });
   }
 });
+
+router.get('/user/:userId',async(req,res)=>{
+  try{
+    // token verification already done in api endpoint
+    const id = new mongoose.Types.ObjectId(req.params.userId);
+    const user = await User.findById(id);
+    if(!user){
+      return res.status(404).json({message:'User not found'});
+    }
+    res.json(user);
+  }catch(error){
+    console.log('Get user by userId error')
+    res.status(401).json({message:'Token is not valid'});
+  }
+})
 
 module.exports = router; 
