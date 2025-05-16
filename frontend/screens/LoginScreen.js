@@ -44,12 +44,6 @@ const LoginScreen = ({ navigation }) => {
             <Text style={styles.logo}>Pinterest</Text>
             <Text variant="headlineMedium" style={styles.title}>Welcome Back</Text>
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <Text style={styles.testCredentials}>
-              Test credentials:{'\n'}
-              Email: john@example.com{'\n'}
-              Password: password123{'\n\n'}
-              Note: Enter the password without any prefix
-            </Text>
           </View>
         </TouchableWithoutFeedback>
 
