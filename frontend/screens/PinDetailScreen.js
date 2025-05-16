@@ -29,13 +29,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
-import { 
-  getPinById, 
-  getCurrentUser, 
-  isPinLikedByUser, 
-  isPinSavedByUser,
-  getUserById,
-} from '../data/dummyData';
+
+import { authAPI,pinsAPI } from '../services/api.js';
 
 const { width } = Dimensions.get('window');
 
@@ -53,22 +48,42 @@ const PinDetailScreen = () => {
   const [commentDialogVisible, setCommentDialogVisible] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState([]);
-  const currentUser = getCurrentUser();
+  // const [author,setAuthor] =useState();
+  const currentUser = authAPI.getCurrentUser();
 
+  const isPinLikedByUser = ()=>{
+    return pin?.likes.includes(currentUser._id);
+  }
+  const isPinSavedByUser = ()=>{
+    if (currentUser.saves){
+      return currentUser.saves.includes(pin_id);
+    }else{
+      return false
+    }
+  }
   const fetchPinDetails = async () => {
     try {
       setLoading(true);
       console.log('Fetching pin details for ID:', pinId);
-      
-      const foundPin = getPinById(pinId);
+      const foundPin = await pinsAPI.getPinById(pinId);
       if (!foundPin) {
+        console.log('MEOOOWWWWW')
         throw new Error('Pin not found');
       }
+      const author = await authAPI.getUserById(foundPin.user)
+      foundPin.author = author
+      console.log('Found pin with author:', foundPin);
 
-      console.log('Found pin:', foundPin);
+      foundPin.likes!=null?foundPin.likes:[];
+      const likes =foundPin.likes??[];
+      foundPin.likes = likes;
+
+      foundPin.saves!=null?foundPin.saves:0;
+      foundPin.board?foundPin.board:null;
+
       setPin(foundPin);
-      setIsLiked(isPinLikedByUser(foundPin));
-      setIsSaved(isPinSavedByUser(foundPin));
+      setIsLiked(isPinLikedByUser);
+      setIsSaved(isPinSavedByUser);
       setComments(foundPin.comments || []);
     } catch (error) {
       console.error('Error fetching pin details:', error);
@@ -77,6 +92,7 @@ const PinDetailScreen = () => {
       setRefreshing(false);
     }
   };
+
 
   useEffect(() => {
     fetchPinDetails();
@@ -106,12 +122,14 @@ const PinDetailScreen = () => {
     try {
       // Simulate API call
       setIsSaved(!isSaved);
+      {/* 
       setPin(prev => ({
         ...prev,
         saves: isSaved
           ? prev.saves.filter(id => id !== currentUser._id)
           : [...prev.saves, currentUser._id],
       }));
+      */}
     } catch (error) {
       console.error('Error saving pin:', error);
     }
@@ -186,6 +204,7 @@ const PinDetailScreen = () => {
     >
       <Image
         source={{ uri: pin.imageUrl }}
+        // source = {{uri:'https://images.unsplash.com/photo-1469474968028-56623f02e42e'}}
         style={styles.image}
         resizeMode="cover"
       />
@@ -255,24 +274,37 @@ const PinDetailScreen = () => {
 
         <Divider style={[styles.divider, { backgroundColor: '#333333' }]} />
 
+        {/* works with dummy data, but no pins are linked to boards in db, so make conditional rendering
+        where if board?board: Pin does not belong to any boards */}
         {/* Board Info */}
+        {
+          pin.board!=null?
         <TouchableOpacity
           style={styles.boardSection}
           onPress={() => navigation.navigate('BoardDetail', { boardId: pin.board._id })}
         >
+        {/* //no cover image */}
           <Image
             source={{ uri: pin.board.coverImage }}
             style={styles.boardThumbnail}
           />
+        {/* //board.title */}
           <View style={styles.boardInfo}>
             <Text variant="titleMedium" style={{ color: '#FFFFFF' }}>
-              {pin.board.name}
+              {pin.board.title}
             </Text>
+        {/* // board.description */}
             <Text variant="bodyMedium" style={{ color: '#B0B0B0' }}>
               {pin.board.description}
             </Text>
           </View>
         </TouchableOpacity>
+        :
+          <Text variant="bodyMedium" style={{ color: '#B0B0B0' }}>
+              Pin does not belong to any boards.
+          </Text>
+        }
+
 
         <Divider style={[styles.divider, { backgroundColor: '#333333' }]} />
 
@@ -302,7 +334,7 @@ const PinDetailScreen = () => {
           </View>
           <View style={styles.stats}>
             <Text style={[styles.statCount, { color: '#FFFFFF' }]}>
-              {pin.saves.length}
+              {pin.saves}
             </Text>
             <Text style={[styles.statLabel, { color: '#B0B0B0' }]}>saves</Text>
           </View>
@@ -539,6 +571,8 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     flex: 1,
   },
-});
+  
+}
+);
 
 export default PinDetailScreen; 
