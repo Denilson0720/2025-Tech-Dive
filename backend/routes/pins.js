@@ -1,8 +1,9 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const Pin = require('../models/Pin');
-const config = require('../config');
+
 
 // Get all pins
 router.get('/', async (req, res) => {
@@ -99,14 +100,9 @@ router.delete('/:id', async (req, res) => {
 router.get('/random-image/:query',async (req,res)=>{
   try{
     const {query} = req.params;
-    console.log('message from api: getting image using', query)
-    const response = await fetch(`https://api.unsplash.com/photos/random?client_id=${config.UNSPLASH_ACCESS_KEY}&query=${query}`)
-    // const response = await fetch('https://api.unsplash.com/photos/random?client_id=uJuP4SN1BMsQIiEcRBxPo81SKwuHV6fEwksb3WnWaic&query=car+detailing');
-    console.log('endpoint raw strucutre: ', response)
+    const response = await fetch(`https://api.unsplash.com/photos/random?client_id=${process.env.UNSPLASH_ACCESS_KEY}&query=${query}`)
     const data = await response.json();
     res.json(data);
-    // res.json(response)
-    // return response
 
   }catch(error){
     console.error('Get image error: ', error);

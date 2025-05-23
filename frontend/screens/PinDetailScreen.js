@@ -82,6 +82,9 @@ const PinDetailScreen = () => {
       foundPin.board?foundPin.board:null;
 
       setPin(foundPin);
+
+      getImageData(foundPin.imageUrl);
+
       setIsLiked(isPinLikedByUser);
       setIsSaved(isPinSavedByUser);
       setComments(foundPin.comments || []);
@@ -96,11 +99,7 @@ const PinDetailScreen = () => {
 
 
   useEffect(() => {
-    const getData = async ()=>{
-      fetchPinDetails();
-      getImageData();
-    }
-    getData();
+    fetchPinDetails();
    
   }, [pinId]);
 
@@ -108,16 +107,12 @@ const PinDetailScreen = () => {
     setRefreshing(true);
     fetchPinDetails();
   };
-  const getImageData = async ()=>{
+  const getImageData = async (url)=>{
     try{
-      // const data = await fetch(pin.imageUrl);
-      // const data = await pinsAPI.getPinImage(pin.imageUrl);
-      const url = pin.imageUrl;
       let query = url.split("?")[1];
       query = query.replace(',','+');
       console.log('sending these query specific to api endpoint: ',query);
       const data = await pinsAPI.getPinImage(query);
-      // data.urls.full
       setPin(x=>({
         ...x,
         imageUrl:data.urls.full
@@ -231,7 +226,6 @@ const PinDetailScreen = () => {
     >
       <Image
         source={{ uri: pin.imageUrl }}
-        // source = {{uri:'https://images.unsplash.com/photo-1469474968028-56623f02e42e'}}
         style={styles.image}
         resizeMode="cover"
       />
@@ -300,9 +294,6 @@ const PinDetailScreen = () => {
         </TouchableOpacity>
 
         <Divider style={[styles.divider, { backgroundColor: '#333333' }]} />
-
-        {/* works with dummy data, but no pins are linked to boards in db, so make conditional rendering
-        where if board?board: Pin does not belong to any boards */}
         {/* Board Info */}
         {
           pin.board!=null?
@@ -347,13 +338,6 @@ const PinDetailScreen = () => {
               {tag}
             </Chip>
           ))}
-          <Chip
-            style={[styles.tag,{backgroundColor:'#333333'}]}
-            textStyle={{color:'#FFFFFF'}}
-            onPress = {()=>getImageData()}
-          >
-
-          </Chip>
         </View>
 
         <Divider style={[styles.divider, { backgroundColor: '#333333' }]} />
