@@ -85,6 +85,7 @@ const PinDetailScreen = () => {
       setIsLiked(isPinLikedByUser);
       setIsSaved(isPinSavedByUser);
       setComments(foundPin.comments || []);
+      console.log('pin state: ', pin);
     } catch (error) {
       console.error('Error fetching pin details:', error);
     } finally {
@@ -95,14 +96,40 @@ const PinDetailScreen = () => {
 
 
   useEffect(() => {
-    fetchPinDetails();
+    const getData = async ()=>{
+      fetchPinDetails();
+      getImageData();
+    }
+    getData();
+   
   }, [pinId]);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchPinDetails();
   };
+  const getImageData = async ()=>{
+    try{
+      // const data = await fetch(pin.imageUrl);
+      // const data = await pinsAPI.getPinImage(pin.imageUrl);
+      const url = pin.imageUrl;
+      let query = url.split("?")[1];
+      query = query.replace(',','+');
+      console.log('sending these query specific to api endpoint: ',query);
+      const data = await pinsAPI.getPinImage(query);
+      // data.urls.full
+      setPin(x=>({
+        ...x,
+        imageUrl:data.urls.full
 
+      }))
+      console.log(data);
+      
+
+    }catch(e){
+      console.log(e)
+    }
+  }
   const handleLike = async () => {
     try {
       // Simulate API call
@@ -320,6 +347,13 @@ const PinDetailScreen = () => {
               {tag}
             </Chip>
           ))}
+          <Chip
+            style={[styles.tag,{backgroundColor:'#333333'}]}
+            textStyle={{color:'#FFFFFF'}}
+            onPress = {()=>getImageData()}
+          >
+
+          </Chip>
         </View>
 
         <Divider style={[styles.divider, { backgroundColor: '#333333' }]} />

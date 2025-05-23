@@ -246,6 +246,25 @@ export const pinsAPI = {
     });
     return handleResponse(response);
   },
+  getPinImage: async (query)=>{
+    const token = await getAuthToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const response = await fetch(`${API_URL}/pins/random-image/${query}`,{
+      method:'GET',
+      headers:{
+        'x-auth-token': token,
+        'Accept': 'application/json'
+      },
+    });
+    // return handleResponse(response)
+    // return response.json();
+    // console.log('response before converting to json: ',response);
+    const data = await response.json();
+    console.log('API Success Response:', data);
+    return data;
+  }
 };
 
 // Boards API
